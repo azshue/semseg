@@ -163,7 +163,12 @@ def main_worker(gpu, ngpus_per_node, argss):
             if main_process():
                 logger.info("=> loading weight '{}'".format(args.weight))
             checkpoint = torch.load(args.weight)
-            model.load_state_dict(checkpoint['state_dict'])
+            # modify keys
+            pretrained_weight = {k.replace('maskingmodel.', ''): v for k, v in checkpoint['state_dict'].items()}
+            # number of classes differs from pretraining, so delete the cls layer
+            del pretrained_weight['module.cls.4.weight']
+            del pretrained_weight['module.cls.4.bias']
+            model.load_state_dict(pretrained_weight, strict=False)  # ignore non-overlapping weights
             if main_process():
                 logger.info("=> loaded weight '{}'".format(args.weight))
         else:
