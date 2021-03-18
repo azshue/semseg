@@ -14,7 +14,7 @@ def is_image_file(filename):
     return any(filename_lower.endswith(extension) for extension in IMG_EXTENSIONS)
 
 
-def make_dataset(split='train', data_root=None, data_list=None):
+def make_dataset(split='train', data_root=None, label_root=None, data_list=None):
     assert split in ['train', 'val', 'test']
     if not os.path.isfile(data_list):
         raise (RuntimeError("Image list file do not exist: " + data_list + "\n"))
@@ -34,7 +34,7 @@ def make_dataset(split='train', data_root=None, data_list=None):
             if len(line_split) != 2:
                 raise (RuntimeError("Image list file read line error : " + line + "\n"))
             image_name = os.path.join(data_root, line_split[0])
-            label_name = os.path.join(data_root, line_split[1])
+            label_name = os.path.join(label_root, line_split[1])
         '''
         following check costs some time
         if is_image_file(image_name) and is_image_file(label_name) and os.path.isfile(image_name) and os.path.isfile(label_name):
@@ -50,9 +50,9 @@ def make_dataset(split='train', data_root=None, data_list=None):
 
 
 class SemData(Dataset):
-    def __init__(self, split='train', data_root=None, data_list=None, transform=None):
+    def __init__(self, split='train', data_root=None, label_root=None, data_list=None, transform=None):
         self.split = split
-        self.data_list = make_dataset(split, data_root, data_list)
+        self.data_list = make_dataset(split, data_root, label_root, data_list)
         self.transform = transform
 
     def __len__(self):
